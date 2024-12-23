@@ -24,6 +24,80 @@ const itemSchema = new mongoose.Schema({
 const Item = mongoose.model("Item", itemSchema);
 module.exports = Item;
 
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true }, // Optional: User name
+  email: { type: String },                // Optional: User email
+  history: [
+    {
+      drink: { type: mongoose.Schema.Types.ObjectId, ref: "Item" },
+      date: { type: Date, default: Date.now },
+    },
+  ],
+});
+
+const User = mongoose.model("User", userSchema);
+
+// Track a drink for a user
+app.post('/users/:userId/track', async (req, res) => {
+  const { userId } = req.params;
+  const { drinkId } = req.body;
+
+  if (!drinkId) {
+    return res.status(400).json({ message: 'Drink ID is required' });
+  }
+
+  try {
+    // Find the user
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Add the drink to the user's history
+    user.history.push({ drink: drinkId });
+    await user.save();
+
+    res.status(200).json({ message: 'Drink tracked successfully', user });
+  } catch (error) {
+    console.error('Error tracking drink:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get the tracking history of a user
+app.get('/users/:userId/history', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Find the user and populate their drink history
+    const user = await User.findById(userId).populate('history.drink');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user.history);
+  } catch (error) {
+    console.error('Error fetching tracking history:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+app.post('/users', async (req, res) => {
+  const { name, email } = req.body;
+
+  try {
+    const newUser = new User({ name, email, history: [] });
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Routes
 // Create an entry
 app.post('/items', async (req, res) => {
