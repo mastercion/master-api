@@ -3,7 +3,8 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Preview App
-![Preview](https://raw.githubusercontent.com/mastercion/master-api/refs/heads/images/images/list_item_peview.png?token=GHSAT0AAAAAACYINOOROUYOZFKNKAOQ2POCZ3F6FOQ)
+![Preview](https://github.com/mastercion/master-api/blob/images/images/list_item_peview.png?raw=true)
+e
 
 ## To get started
 
