@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Preview App
 ![Preview](https://github.com/mastercion/master-api/blob/images/images/list_item_peview.png?raw=true)
-e
+
 
 ## To get started
 
