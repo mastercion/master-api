@@ -5,15 +5,18 @@ const cors = require("cors");
 
 const app = express();
 
+const config = require('./config.json');
+const ipAddress = config.ipAddress;
+
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'http://localhost:3000',  // Adjust the port number if your frontend runs on a different port
+  origin: `http://${ipAddress}:3000`,  // Adjust the port number if your frontend runs on a different port
   optionsSuccessStatus: 200
 }));
 
 // Connect to MongoDB
-mongoose.connect("mongodb://localhost:27017/energy-tracker", {
+mongoose.connect(`mongodb://${ipAddress}:27017/energy-tracker`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -317,4 +320,4 @@ app.get('/items/:id', async (req, res) => {
 
 // Start the server
 const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running on http://${ipAddress}:${PORT}`));
