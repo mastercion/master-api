@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import AddItemForm from './components/AddItemForm';
 import ItemsList from './components/ItemsList';
 import EditItemForm from './components/EditItemForm';
+import AddUser from './components/AddUser';
+import PurchaseHistory from './components/PurchaseHistory';
+import AddPurchaseModal from './components/AddPurchaseModal';
 import './App.css';
 
 function App() {
@@ -24,10 +27,16 @@ function App() {
           <div className="nav-content">
             <ul className="nav-links">
               <li>
-                <Link to="/">View Items</Link>
+                <Link to="/">Tabak Liste</Link>
               </li>
               <li>
-                <Link to="/add-item">Add Item</Link>
+                <Link to="/add-item">Tabak Hinzufügen</Link>
+              </li>
+              <li>
+                <Link to="/add-user">Benutzer Hinzufügen</Link>
+              </li>
+              <li>
+                <Link to="/purchase-history">Tabak Kauf verlauf</Link> {/* New Link */}
               </li>
             </ul>
             <button className="theme-toggle" onClick={toggleTheme}>
@@ -40,8 +49,11 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<ItemsList />} />
+            <Route path="/add-User" element={<AddUser />} />
             <Route path="/add-item" element={<AddItemForm />} />
             <Route path="/edit-item/:id" element={<EditItemForm />} />
+            <Route path="/purchase-history" element={<PurchaseHistory />} />
+            <Route path="/purchase-history" element={<AddPurchaseModal />} />
           </Routes>
         </main>
       </div>

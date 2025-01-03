@@ -7,7 +7,10 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',  // Adjust the port number if your frontend runs on a different port
+  optionsSuccessStatus: 200
+}));
 
 // Connect to MongoDB
 mongoose.connect("mongodb://localhost:27017/energy-tracker", {
@@ -25,17 +28,16 @@ const Item = mongoose.model("Item", itemSchema);
 module.exports = Item;
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true }, // Optional: User name
-  email: { type: String },                // Optional: User email
-  history: [
-    {
-      drink: { type: mongoose.Schema.Types.ObjectId, ref: "Item" },
-      date: { type: Date, default: Date.now },
-    },
-  ],
+  name: { type: String, required: true },
+  history: [{
+    item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' },  // Use 'item' consistently
+    date: { type: Date, default: Date.now }
+  }]
 });
 
-const User = mongoose.model("User", userSchema);
+
+const User = mongoose.model('User', userSchema);
+module.exports = User;
 
 // Track a drink for a user
 app.post('/users/:userId/track', async (req, res) => {
@@ -119,6 +121,128 @@ app.post('/items', async (req, res) => {
       return res.status(500).json({ message: 'Server error', error: err.message });
     }
   });
+
+  app.post('/User', async (req, res) => {
+    const { Username } = req.body;
+  
+    console.log('Received data:', req.body);  // This should log the data as you expect.
+  
+    // Check if all fields are present
+    if (!Username) {
+      return res.status(400).json({ message: 'All fields are required!' });
+    }
+  
+    try {
+      // Create a new User object
+      const newUser = new User({ name: Username, history: [] });
+      await newUser.save();
+      res.status(201).json(newUser);  // Respond with the saved user
+    } catch (err) {
+      console.error('Error saving user:', err);
+      return res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  });
+
+  // In your /users endpoint
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.find().populate('history.item'); // Change from 'history.drink' to 'history.item'
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+});
+
+  // In your /purchase-history endpoint
+  app.get('/purchase-history', async (req, res) => {
+    try {
+      const users = await User.find().populate('history.item');
+      
+      // Transform the data
+      const history = users.flatMap(user => 
+        user.history.map(h => {
+          if (h.item && user) {
+            return {
+              _id: h._id, 
+              user: {
+                _id: user._id,
+                name: user.name
+              },
+              item: {
+                name: h.item.name,
+                image_url: h.item.image_url,
+                brand: h.item.brand
+              },
+              boughtAt: h.date
+            };
+          } else {
+            return null;
+          }
+        }).filter(Boolean) // Filter out null values
+      );
+    
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching purchase history', error: error.message });
+    }
+  });
+  
+  
+
+app.delete('/purchase-history/:userId/:historyId', async (req, res) => {
+  const { userId, historyId } = req.params;
+  
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Remove the specific history entry
+    user.history = user.history.filter(h => h._id.toString() !== historyId);
+    await user.save();
+    
+    res.json({ message: 'Purchase history entry deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting purchase history entry', error: error.message });
+  }
+});
+
+  app.post('/when-bought', async (req, res) => {
+    const { userId, itemId, boughtAt } = req.body;
+  
+    // Validate incoming request
+    if (!userId || !itemId) {
+      return res.status(400).json({ message: 'userId and itemId are required.' });
+    }
+  
+    try {
+      // Find the user and item
+      const user = await User.findById(userId);
+      const item = await Item.findById(itemId);
+  
+      if (!user || !item) {
+        return res.status(404).json({ message: 'User or Item not found.' });
+      }
+  
+      // Add the item to the user's purchase history with an optional boughtAt time
+      user.history.push({
+        item: item._id,
+        boughtAt: boughtAt || new Date() // Use provided date or default to now
+      });
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Purchase recorded successfully.', user });
+    } catch (error) {
+      console.error('Error recording purchase:', error);
+      return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  });
+  
+  
+  
   
 // Update an existing item
 app.put('/items/:id', async (req, res) => {
