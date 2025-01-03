@@ -7,6 +7,7 @@ const app = express();
 
 const config = require('./config.json');
 const ipAddress = config.ipAddress;
+const mongoAdress = config.mongoAdress;
 
 // Middleware
 app.use(bodyParser.json());
@@ -16,7 +17,7 @@ app.use(cors({
 }));
 
 // Connect to MongoDB
-mongoose.connect(`mongodb://${ipAddress}:27017/energy-tracker`, {
+mongoose.connect(`mongodb://${mongoAdress}:27017/energy-tracker`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
