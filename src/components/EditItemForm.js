@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import dotenv from 'react-dotenv';
 
 const EditItemForm = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const EditItemForm = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/items/${id}`);
+        const response = await axios.get(`http://${process.env.REACT_APP_IP}:5000/items/${id}`);
         setItem(response.data);
       } catch (err) {
         setError('Error fetching item');
@@ -29,7 +30,7 @@ const EditItemForm = () => {
     e.preventDefault();
 
     try {
-      await axios.put(`http://localhost:5000/items/${id}`, item);
+      await axios.put(`http://${process.env.REACT_APP_IP}:5000/items/${id}`, item);
       navigate('/');  // Redirect to the list page after editing
     } catch (err) {
       setError('Error updating item');

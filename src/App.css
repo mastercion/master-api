@@ -131,11 +131,21 @@ nav {
 }
 
 .history-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .history-card {
+  background-color: var(--primary-bg);
+  border-color: var(--dark-border-color);
+}
+
+[data-theme='light'] .history-card {
+  background-color: var(--light-card-bg);
+  border-color: var(--light-border-color);
 }
 
 .history-content {
@@ -152,16 +162,34 @@ nav {
 }
 
 .item-details {
+
   flex-grow: 1;
 }
 
 .item-details h3 {
   margin: 0 0 0.5rem 0;
+  
+}
+
+[data-theme='dark'] .item-details h3 {
+  color: rgb(255, 255, 255);
+}
+
+[data-theme='light'] .item-details h3 {
+  color: rgb(0, 0, 0);
 }
 
 .item-details p {
   margin: 0.25rem 0;
   color: #666;
+}
+
+[data-theme='dark'] .item-details p {
+  color: rgb(172, 172, 172);
+}
+
+[data-theme='light'] .item-details p {
+  color: rgb(46, 46, 46);
 }
 
 .delete-btn {

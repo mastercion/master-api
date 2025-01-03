@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import dotenv from 'react-dotenv';
 
 const ItemsList = () => {
   const [items, setItems] = useState([]);
@@ -13,7 +14,7 @@ const ItemsList = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/items');
+        const response = await axios.get(`http://${process.env.REACT_APP_IP}:5000/items`);
         setItems(response.data);
         setFilteredItems(response.data);
 
@@ -39,7 +40,7 @@ const ItemsList = () => {
 
   const deleteItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/items/${id}`);
+      await axios.delete(`http://${process.env.REACT_APP_IP}:5000/items/${id}`);
       const updatedItems = items.filter(item => item._id !== id);
       setItems(updatedItems);
       setFilteredItems(updatedItems); // Update filtered items as well

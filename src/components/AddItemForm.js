@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import dotenv from 'react-dotenv';
 
 const AddItemForm = () => {
   const [name, setName] = useState("");
@@ -34,9 +35,9 @@ const AddItemForm = () => {
       };
   
     try {
-      const response = await axios.post("http://localhost:5000/items", item, {
+      const response = await axios.post(`http://${process.env.REACT_APP_IP}:5000/items`, item, {
         headers: {
-          "Content-Type": "application/json", // Make sure this header is set correctly
+          "Content-Type": "application/json",
         },
       });
       console.log("Item added:", response.data);

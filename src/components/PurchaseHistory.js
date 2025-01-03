@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import AddPurchaseModal from './AddPurchaseModal';
+import { ThemeContext } from '../App';
+import dotenv from 'react-dotenv';
 
 function PurchaseHistory() {
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([]);
   const [history, setHistory] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
 
   useEffect(() => {
     fetchUsers();
@@ -15,7 +19,7 @@ function PurchaseHistory() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://192.168.178.20:5000/users');
+      const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/users`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -28,7 +32,7 @@ function PurchaseHistory() {
 
   const fetchItems = async () => {
     try {
-      const response = await fetch('http://192.168.178.20:5000/items');
+      const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/items`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -41,7 +45,7 @@ function PurchaseHistory() {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch('http://192.168.178.20:5000/purchase-history');
+      const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/purchase-history`);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`HTTP error! Status: ${response.status}, ${errorText}`);
@@ -70,7 +74,7 @@ function PurchaseHistory() {
 
   const handleDelete = async (userId, historyId) => {
     try {
-      const response = await fetch(`http://192.168.178.20:5000/purchase-history/${userId}/${historyId}`, {
+      const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/purchase-history/${userId}/${historyId}`, {
         method: 'DELETE',
       });
       
@@ -88,7 +92,7 @@ function PurchaseHistory() {
 
   const handleAddPurchase = async (purchase) => {
     try {
-      const response = await fetch('http://192.168.178.20:5000/when-bought', {
+      const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/when-bought`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +120,7 @@ function PurchaseHistory() {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div>
+    <div className={theme === 'light' ? 'light-mode' : 'dark-mode'}>
 
       <h2>Tabak Kauf verlauf</h2>
       <button onClick={openModal}>+ Kauf hinzufügen</button>
@@ -133,7 +137,6 @@ function PurchaseHistory() {
           />
           <div className="item-details">
             <h3>{record.item.name}</h3>
-            <p>Tabak: {record.item.brand}</p>
             <p>Gekauft von: {record.user.name}</p>
             <p>Am: {new Date(record.boughtAt).toLocaleString()}</p>
           </div>

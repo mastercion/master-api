@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import dotenv from 'react-dotenv';
 
 const ItemsByBrand = () => {
   const [brand, setBrand] = useState("");
@@ -8,7 +9,7 @@ const ItemsByBrand = () => {
   const fetchItems = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/items/brand/${brand}`
+        `http://${process.env.REACT_APP_IP}:5000/items/brand/${brand}`
       );
       setItems(response.data);
     } catch (error) {

@@ -6,7 +6,11 @@ import EditItemForm from './components/EditItemForm';
 import AddUser from './components/AddUser';
 import PurchaseHistory from './components/PurchaseHistory';
 import AddPurchaseModal from './components/AddPurchaseModal';
+import { createContext } from 'react';
+import dotenv from 'react-dotenv';
 import './App.css';
+
+const ThemeContext = createContext();
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -22,6 +26,7 @@ function App() {
 
   return (
     <Router>
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <div className="app-container">
         <nav>
           <div className="nav-content">
@@ -57,6 +62,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      </ThemeContext.Provider>
     </Router>
   );
 }
