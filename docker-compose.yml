@@ -1,0 +1,30 @@
+version: '3'
+services:
+  init:
+    build: .
+    command: npm install && node ./init.js
+    environment:
+      - IP_ADDRESS
+      - API_KEY
+
+  react:
+    build: .
+    command: npm run start
+    ports:
+      - "3000:3000"
+    depends_on:
+      - init
+    environment:
+      - REACT_APP_IP
+      - REACT_APP_API_KEY
+
+  server:
+    build: .
+    command: node server.js
+    ports:
+      - "5000:5000"
+    depends_on:
+      - init
+    environment:
+      - REACT_APP_IP
+      - REACT_APP_API_KEY
