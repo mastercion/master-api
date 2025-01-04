@@ -14,10 +14,14 @@ const ItemsList = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`http://${process.env.REACT_APP_IP}:5000/items`);
+        const response = await axios.get(`http://${process.env.REACT_APP_IP}:5000/items`, {
+          headers: {
+            'X-API-KEY': process.env.REACT_APP_API_KEY,
+          },
+        });
         setItems(response.data);
         setFilteredItems(response.data);
-
+  
         // Extract unique brands for the filter
         const uniqueBrands = [...new Set(response.data.map(item => item.brand))];
         setBrands(uniqueBrands);
@@ -25,7 +29,7 @@ const ItemsList = () => {
         setError('Error fetching items');
       }
     };
-
+  
     fetchItems();
   }, []);
 
@@ -40,7 +44,12 @@ const ItemsList = () => {
 
   const deleteItem = async (id) => {
     try {
-      await axios.delete(`http://${process.env.REACT_APP_IP}:5000/items/${id}`);
+      const config = {
+        headers: {
+          'X-API-KEY': process.env.REACT_APP_API_KEY,
+        },
+      };
+      await axios.delete(`http://${process.env.REACT_APP_IP}:5000/items/${id}`, config);
       const updatedItems = items.filter(item => item._id !== id);
       setItems(updatedItems);
       setFilteredItems(updatedItems); // Update filtered items as well

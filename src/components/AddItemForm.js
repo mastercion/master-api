@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import dotenv from 'react-dotenv';
 
+const api_key = process.env.REACT_APP_API_KEY;
+
 const AddItemForm = () => {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -34,17 +36,20 @@ const AddItemForm = () => {
         brand,
       };
   
-    try {
-      const response = await axios.post(`http://${process.env.REACT_APP_IP}:5000/items`, item, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("Item added:", response.data);
-    } catch (error) {
-      console.error("Error adding item:", error.response ? error.response.data : error);
-    }
-  };
+      try {
+        const config = {
+          headers: {
+            'X-API-KEY': api_key,
+            'Content-Type': 'application/json',
+          },
+        };
+    
+        const response = await axios.post(`http://${process.env.REACT_APP_IP}:5000/items`, item, config);
+        console.log("Item added:", response.data);
+      } catch (error) {
+        console.error("Error adding item:", error.response ? error.response.data : error);
+      }
+    };
 
   return (
     <form onSubmit={handleSubmit}>

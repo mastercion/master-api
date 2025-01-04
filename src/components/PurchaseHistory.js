@@ -3,6 +3,8 @@ import AddPurchaseModal from './AddPurchaseModal';
 import { ThemeContext } from '../App';
 import dotenv from 'react-dotenv';
 
+const REACT_APP_API_KEY = process.env.REACT_APP_API_KEY;
+
 function PurchaseHistory() {
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([]);
@@ -76,6 +78,9 @@ function PurchaseHistory() {
     try {
       const response = await fetch(`http://${process.env.REACT_APP_IP}:5000/purchase-history/${userId}/${historyId}`, {
         method: 'DELETE',
+        headers: {
+          'X-API-KEY': process.env.REACT_APP_API_KEY
+        },
       });
       
       if (!response.ok) {
@@ -96,6 +101,7 @@ function PurchaseHistory() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-KEY': process.env.REACT_APP_API_KEY
         },
         body: JSON.stringify(purchase),
       });

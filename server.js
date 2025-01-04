@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const dotenv = require('dotenv');
+dotenv.config();
+const apiKey = process.env.REACT_APP_API_KEY;
 
 const app = express();
 
@@ -12,7 +15,7 @@ const mongoAdress = config.mongoAdress;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: `http://${ipAddress}:3000`,  // Adjust the port number if your frontend runs on a different port
+  origin: [`http://${ipAddress}:3000`, `http://192.168.178.20:3000`], // Adjust the port number if your frontend runs on a different port
   optionsSuccessStatus: 200
 }));
 
@@ -42,6 +45,14 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
+
+const validateApiKey = (req, res, next) => {
+  const providedApiKey = req.header('X-API-KEY');
+  if (!providedApiKey || providedApiKey !== apiKey) {
+    return res.status(401).json({ error: `Invalid API key ${providedApiKey}\n Expected API key ${apiKey}` });
+  }
+  next();
+};
 
 // Track a drink for a user
 app.post('/users/:userId/track', async (req, res) => {
@@ -106,27 +117,32 @@ app.post('/users', async (req, res) => {
 
 // Routes
 // Create an entry
-app.post('/items', async (req, res) => {
-    const { name, image_url, brand } = req.body;
-    
-    console.log('Received data:', req.body);  // This should log the data as you expect.
+// Create an entry
+app.post('/items', validateApiKey, async (req, res) => {
+  const { name, image_url, brand } = req.body;
   
-    // Check if all fields are present
-    if (!name || !image_url || !brand) {
-      return res.status(400).json({ message: 'All fields are required!' });
-    }
+  console.log('Received data:', req.body);  // This should log the data as you expect.
   
-    try {
-      const newItem = new Item({ name, image_url, brand });
-      await newItem.save();
-      res.status(201).json(newItem);  // Respond with the saved item
-    } catch (err) {
-      console.error('Error saving item:', err);
-      return res.status(500).json({ message: 'Server error', error: err.message });
-    }
-  });
+  // Log the expected and used API keys
+  console.log(`Expected API key: ${apiKey}`);
+  console.log(`Used API key: ${req.header('X-API-KEY')}`);
+  
+  // Check if all fields are present
+  if (!name || !image_url || !brand) {
+    return res.status(400).json({ message: 'All fields are required!' });
+  }
+  
+  try {
+    const newItem = new Item({ name, image_url, brand });
+    await newItem.save();
+    res.status(201).json(newItem);  // Respond with the saved item
+  } catch (err) {
+    console.error('Error saving item:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 
-  app.post('/User', async (req, res) => {
+  app.post('/User', validateApiKey, async (req, res) => {
     const { Username } = req.body;
   
     console.log('Received data:', req.body);  // This should log the data as you expect.
@@ -194,7 +210,7 @@ app.get('/users', async (req, res) => {
   
   
 
-app.delete('/purchase-history/:userId/:historyId', async (req, res) => {
+app.delete('/purchase-history/:userId/:historyId', validateApiKey, async (req, res) => {
   const { userId, historyId } = req.params;
   
   try {
@@ -213,7 +229,7 @@ app.delete('/purchase-history/:userId/:historyId', async (req, res) => {
   }
 });
 
-  app.post('/when-bought', async (req, res) => {
+  app.post('/when-bought', validateApiKey, async (req, res) => {
     const { userId, itemId, boughtAt } = req.body;
   
     // Validate incoming request
@@ -249,7 +265,7 @@ app.delete('/purchase-history/:userId/:historyId', async (req, res) => {
   
   
 // Update an existing item
-app.put('/items/:id', async (req, res) => {
+app.put('/items/:id', validateApiKey, async (req, res) => {
     const { name, image_url, brand } = req.body;
     try {
       const updatedItem = await Item.findByIdAndUpdate(
@@ -266,8 +282,22 @@ app.put('/items/:id', async (req, res) => {
     }
   });
 
+  app.get('/items/:id', validateApiKey, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const item = await Item.findById(id);
+      if (!item) {
+        return res.status(404).json({ message: 'Item not found' });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error('Error fetching item:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
 // Delete an item
-app.delete('/items/:id', async (req, res) => {
+app.delete('/items/:id', validateApiKey, async (req, res) => {
     try {
       const deletedItem = await Item.findByIdAndDelete(req.params.id);
       if (!deletedItem) {
@@ -304,17 +334,23 @@ app.get('/items', async (req, res) => {
   });
 
   // Get a specific item
-app.get('/items/:id', async (req, res) => {
-    try {
-      const item = await Item.findById(req.params.id);
-      if (!item) {
-        return res.status(404).json({ message: 'Item not found' });
-      }
-      res.json(item);
-    } catch (err) {
-      res.status(500).json({ message: 'Error fetching item' });
+// Update an existing item
+app.put('/items/:id', validateApiKey, async (req, res) => {
+  const { name, image_url, brand } = req.body;
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      req.params.id,
+      { name, image_url, brand },
+      { new: true }  // Return the updated document
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Item not found' });
     }
-  });
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating item' });
+  }
+});
   
 
 

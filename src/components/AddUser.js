@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import dotenv from 'react-dotenv';
 
+const REACT_APP_API_KEY = process.env.REACT_APP_API_KEY_BAD;
+
 const AddUser = () => {
   const [Username, setName] = useState("");
 
@@ -26,6 +28,7 @@ const AddUser = () => {
       const response = await axios.post(`http://${process.env.REACT_APP_IP}:5000/User`, user, {
         headers: {
           "Content-Type": "application/json", // Make sure this header is set correctly
+          'X-API-KEY': process.env.REACT_APP_API_KEY
         },
       });
       console.log("User added:", response.data);
