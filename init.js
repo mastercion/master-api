@@ -6,10 +6,12 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.question('Enter the IP address: ', (ipAddress) => {
+let ipAddress;
+rl.question('Enter the IP address: ', (ip) => {
+  ipAddress = ip;
   const apiKey = require('crypto').randomBytes(32).toString('hex');
   console.log(`Generated API key: ${apiKey}`);
-  
+
   rl.question('Enter the mongoDB IP address: ', (mongoipAddress) => {
     const config = {
       mongoAddress: mongoipAddress,
