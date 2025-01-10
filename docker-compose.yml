@@ -2,10 +2,10 @@ version: '3'
 services:
   init:
     build: .
-    command: npm install && node ./init.js
+    command: node ./init.js
     environment:
-      - IP_ADDRESS
-      - API_KEY
+      - IP_ADDRESS=${IP_ADDRESS}
+
 
   react:
     build: .
