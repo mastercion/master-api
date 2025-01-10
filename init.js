@@ -9,10 +9,18 @@ const rl = readline.createInterface({
 rl.question('Enter the IP address: ', (ipAddress) => {
   const apiKey = require('crypto').randomBytes(32).toString('hex');
   console.log(`Generated API key: ${apiKey}`);
-  process.env.IP_ADDRESS = ipAddress;
-  process.env.API_KEY = apiKey;
-  process.env.REACT_APP_IP = ipAddress;
-  process.env.REACT_APP_API_KEY = apiKey;
-  rl.close();
-  fs.writeFileSync('.env', `REACT_APP_IP=${ipAddress}\nREACT_APP_API_KEY=${apiKey}`);
+  
+  rl.question('Enter the mongoDB IP address: ', (mongoipAddress) => {
+    const config = {
+      mongoAddress: mongoipAddress,
+      ipAddress: ipAddress,
+      apiKey: apiKey
+    };
+
+    fs.writeFileSync('config.json', JSON.stringify(config, null, 2));
+    fs.writeFileSync('.env', `REACT_APP_IP=${ipAddress}\nREACT_APP_API_KEY=${apiKey}`);
+
+    console.log('Config written to config.json and .env');
+    rl.close();
+  });
 });
